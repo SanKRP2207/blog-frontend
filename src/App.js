@@ -22,7 +22,7 @@ function App() {
         {/* Private Routes */}
         <Route element={<PrivateRoute />}>
           <Route path="/postsDetail/:id" element={<PostDetail />} />
-          <Route path="/create" element={<CreatePost />} />
+          <Route path="/create-post" element={<CreatePost />} />
           <Route path="/logout" element={<Logout />} />
         </Route>
 

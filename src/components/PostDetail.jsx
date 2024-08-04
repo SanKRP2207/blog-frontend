@@ -12,6 +12,8 @@ function PostDetail() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -49,6 +51,45 @@ function PostDetail() {
     fetchData();
   }, [id]);
 
+  const handleEditChange = (e) => {
+    setEditContent(e.target.value);
+  };
+
+  const handleEditSubmit = async (commentId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.put(`${apiLink}/comments`, 
+        { commentId, content: editContent }, 
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setComments(comments.map(comment => 
+        comment.id === commentId ? response.data : comment
+      ));
+      setEditingCommentId(null);
+      setEditContent('');
+    } catch (error) {
+      console.error('There was an error updating the comment!', error);
+    }
+  };
+  
+  
+  const handleDelete = async (commentId) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.delete(`${apiLink}/comments`, {
+        data: { commentId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Refresh comments
+      const response = await axios.get(`${apiLink}/posts/${id}/comments`);
+      setComments(response.data);
+    } catch (error) {
+      console.error('There was an error deleting the comment!', error);
+    }
+  };
+
   if (loading) {
     return <p>Loading post...</p>;
   }
@@ -70,9 +111,25 @@ function PostDetail() {
             {comments.length ? (
               comments.map((comment) => (
                 <div key={comment.id} className="mb-4 p-4 border border-gray-300 rounded">
-                  <p><strong>Comment:</strong> {comment.content}</p>
-                  <p><strong>Author ID:</strong> {comment.authorId}</p>
-                  <p><strong>Created At:</strong> {new Date(comment.createdAt).toLocaleString()}</p>
+                  {editingCommentId === comment.id ? (
+                    <>
+                      <textarea
+                        value={editContent}
+                        onChange={handleEditChange}
+                        className="w-full p-2 border border-gray-300 rounded"
+                      />
+                      <button onClick={() => handleEditSubmit(comment.id)} className="p-2 bg-blue-500 text-white rounded">Save</button>
+                      <button onClick={() => setEditingCommentId(null)} className="p-2 bg-gray-500 text-white rounded ml-2">Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <p><strong>Comment:</strong> {comment.content}</p>
+                      <p><strong>Author ID:</strong> {comment.authorId}</p>
+                      <p><strong>Created At:</strong> {new Date(comment.createdAt).toLocaleString()}</p>
+                      <button onClick={() => { setEditingCommentId(comment.id); setEditContent(comment.content); }} className="p-2 bg-yellow-500 text-white rounded mt-2">Edit</button>
+                      <button onClick={() => handleDelete(comment.id)} className="p-2 bg-red-500 text-white rounded mt-2 ml-2">Delete</button>
+                    </>
+                  )}
                 </div>
               ))
             ) : (

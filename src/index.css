@@ -10,6 +10,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+    /* background-color: #2a2e2d; */
+  /* background-color: #000; */
+  /* background-color: rgba(42, 46, 45, 0.5);
+  backdrop-filter: blur(10px);
+
+  color: black; */
 }
 
 code {

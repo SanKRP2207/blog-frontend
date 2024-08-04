@@ -11,10 +11,10 @@ function CommentForm({ postId, addComment }) {
   };
 
   const handleSubmit = async (e) => {
+    const token = localStorage.getItem('token');
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(`${apiLink}/posts/${postId}/comments`, { content }, {
+      const response = await axios.post(`${apiLink}/posts/comments`, { postId, content }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       addComment(response.data);
@@ -33,6 +33,7 @@ function CommentForm({ postId, addComment }) {
           value={content}
           onChange={handleChange}
           className="w-full p-2 border border-gray-300 rounded"
+          required
         />
       </div>
       <button type="submit" className="p-2 bg-blue-500 text-white rounded">Post Comment</button>
